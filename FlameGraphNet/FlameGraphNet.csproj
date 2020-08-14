@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\FlameGraphSharp.Core\FlameGraphSharp.Core.csproj" />
+    <ProjectReference Include="..\FlameGraphNet.Core\FlameGraphNet.Core.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
