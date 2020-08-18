@@ -6,17 +6,21 @@ A .NET library that makes creating flame graph, output svg content easily.
 
 ## Get started
 
-1. Generate a graph like this:
+* Generate a flame graph like this:
 
 [![Generated FlameGraph](./Demo.png)](./FlameGraphNet/Demo.svg)
 
-1. Add reference to the package:
+<object type='image/svg+xml' data='./FlameGraphNet/Demo.svg'>
+    <img class='preview' src='./FlameGraphNet/Demo.svg' />
+</object>
+
+* Add reference to the package:
 
 ```shell
 dotnet add package FlameGraph.Net
 ```
 
-1. Crate a class that implements the IFlameGraphNode interface:
+* Crate a class that implements the IFlameGraphNode interface:
 
 ```csharp
 class SimpleNode : IFlameGraphNode
@@ -29,7 +33,7 @@ class SimpleNode : IFlameGraphNode
 }
 ```
 
-1. Create tree structure using the the node class above:
+* Create tree structure using the the node class above:
 
 ```csharp
 private static void SimpleNodeExample()
