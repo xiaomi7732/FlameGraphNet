@@ -38,6 +38,7 @@ namespace FlameGraphNet.Core
             var group = svgDoc.Children.OfType<SvgGroup>().FirstOrDefault();
 
             AppendTitle(group);
+
             Build(group, root, width: Width - GraphMargin * 2, left: GraphMargin, depth: 0, parent: null);
 
             MemoryStream outputStream = new MemoryStream();
@@ -116,6 +117,7 @@ namespace FlameGraphNet.Core
             IFlameGraphNode parent)
         {
             if (depth > _maxDepth) return;
+            if ((width - 1) < 0) return;
 
             var unitGroup = new SvgGroup();
             unitGroup.CustomAttributes.Add("class", "unit_g");
