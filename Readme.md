@@ -8,7 +8,7 @@ A .NET library that makes creating flame graph, output svg content easily.
 
 1. Generate a graph like this:
 
-[![Generated FlameGraph](./FlameGraphNet/SimpleNodeExample.svg)](./FlameGraphNet/Demo.svg)
+[![Generated FlameGraph](./Demo.png)](./FlameGraphNet/Demo.svg)
 
 1. Add reference to the package:
 
