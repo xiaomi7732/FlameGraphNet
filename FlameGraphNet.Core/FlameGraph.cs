@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -111,16 +112,28 @@ namespace FlameGraphNet.Core
         private void Build(
             SvgGroup workingGroup,
             IFlameGraphNode node,
-            int width,
-            int left,
+            SvgUnit width,
+            SvgUnit left,
             int depth,
             IFlameGraphNode parent)
         {
+            // Reach the max depth
             if (depth > _maxDepth) return;
-            if ((width - 1) < 0) return;
+
+            // Adjust for space between columns.
+            SvgUnit adjustedWidth = width - 1;
+            if (adjustedWidth < 0) return;
+
+            // Adjust height for space between rows
+            SvgUnit top = Height - (depth + 1) * RowHeight;
+            SvgUnit adjustedHeight = RowHeight - 1;
+            Debug.Assert(adjustedHeight > 0);
 
             var unitGroup = new SvgGroup();
+            workingGroup.Children.Add(unitGroup);
             unitGroup.CustomAttributes.Add("class", "unit_g");
+
+            // Add tooltip for full content
             var title = new SvgTitle()
             {
                 Content = node.Content
@@ -135,23 +148,23 @@ namespace FlameGraphNet.Core
 
             unitGroup.Children.Add(title);
 
+            // Create the rectangle:
             var rect = new SvgRectangle
             {
                 Fill = new SvgColourServer(Color.DarkOrange),
                 X = left,
-                Y = Height - (depth + 1) * RowHeight,
+                Y = top,
                 CornerRadiusX = 1,
                 CornerRadiusY = 1,
-                Width = width - 1,
-                Height = RowHeight - 1,
+                Width = adjustedWidth,
+                Height = adjustedHeight,
             };
-
 
             unitGroup.Children.Add(rect);
 
-            var text = new SvgText(GetFitText(node.Content, width))
+            var text = new SvgText(GetFitText(node.Content, adjustedWidth))
             {
-                Y = { Height - depth * RowHeight - 5 },
+                Y = { top + RowHeight - 5 },
                 X = { left + TextMargin },
                 FontSize = 12,
                 FontWeight = SvgFontWeight.W500,
@@ -159,10 +172,7 @@ namespace FlameGraphNet.Core
             };
             unitGroup.Children.Add(text);
 
-            workingGroup.Children.Add(unitGroup);
-
             // Process children elements
-
             int? childrenCount = node.Children?.Count();
 
             if (childrenCount.HasValue)
@@ -170,35 +180,20 @@ namespace FlameGraphNet.Core
                 double metricsSum = node.Children.Sum(item => item.Metric);
                 if (metricsSum == 0) return;
                 double metricsRatio = metricsSum / node.Metric;
-                int childrenWidth = (int)(width * metricsRatio);
-                int startPoint = left + (int)(width - childrenWidth) / 2;
-                if (childrenCount.Value == 1)
+                Debug.Assert(metricsRatio <= 1);
+                SvgUnit childrenWidth = (float)(width * metricsRatio);
+                SvgUnit childLeft = left + (float)(width - childrenWidth) / 2; // Center the child
+
+                foreach (var child in node.Children)
                 {
-                    Build(workingGroup, node.Children.First(), (int)childrenWidth, startPoint, depth + 1, node);
-                }
-                else if (childrenCount.Value > 1)
-                {
-                    var last = node.Children.Last();
-                    int remianingWidth = childrenWidth;
-                    foreach (var child in node.Children)
-                    {
-                        if (!ReferenceEquals(last, child))
-                        {
-                            int ratioWidth = (int)(child.Metric / metricsSum * childrenWidth);
-                            Build(workingGroup, child, ratioWidth, startPoint, depth + 1, node);
-                            startPoint += ratioWidth;
-                            remianingWidth -= ratioWidth;
-                        }
-                        else
-                        {
-                            Build(workingGroup, child, remianingWidth, startPoint, depth + 1, node);
-                        }
-                    }
+                    SvgUnit ratioWidth = (float)(child.Metric / metricsSum * childrenWidth);
+                    Build(workingGroup, child, ratioWidth, childLeft, depth + 1, node);
+                    childLeft += ratioWidth;
                 }
             }
         }
 
-        private string GetFitText(string fullText, int width)
+        private string GetFitText(string fullText, SvgUnit width)
         {
             if (width < 2 * 12 * .6)
             {
