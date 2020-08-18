@@ -147,7 +147,7 @@ namespace FlameGraphNet.Core
 
             unitGroup.Children.Add(rect);
 
-            var text = new SvgText(WhiteSpace)
+            var text = new SvgText(GetFitText(node.Content, width))
             {
                 Y = { Height - depth * RowHeight - 5 },
                 X = { left + TextMargin },
@@ -193,6 +193,35 @@ namespace FlameGraphNet.Core
                         }
                     }
                 }
+            }
+        }
+
+        private string GetFitText(string fullText, int width)
+        {
+            if (width < 2 * 12 * .6)
+            {
+                // Won't fit anything.
+                return WhiteSpace;
+            }
+
+            string content = fullText;
+            if (string.IsNullOrWhiteSpace(fullText))
+            {
+                return content;
+            }
+
+            int fitCount = (int)(width / 7);
+            if (content.Length < fitCount)
+            {
+                return content;
+            }
+            else if (fitCount - 2 < 0)
+            {
+                return WhiteSpace;
+            }
+            else
+            {
+                return content.Substring(0, fitCount - 2) + "..";
             }
         }
 
