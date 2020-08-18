@@ -28,16 +28,6 @@ namespace FlameGraphNet.Core
 
         public double Metric => _getMetric(_obj);
 
-        public void AddChild(IFlameGraphNode child)
-        {
-            AddChildren(child.Yield());
-        }
-
-        public void AddChildren(IEnumerable<IFlameGraphNode> children)
-        {
-            Children.AddRange(children);
-        }
-
         public List<IFlameGraphNode> Children { get; } = new List<IFlameGraphNode>();
 
         private void CopyTree(T current)
@@ -47,7 +37,7 @@ namespace FlameGraphNet.Core
             {
                 foreach (var child in children)
                 {
-                    AddChild(new FlameGraphNode<T>(child, _getContent, _getMetric, _getChildren));
+                    Children.Add(new FlameGraphNode<T>(child, _getContent, _getMetric, _getChildren));
                 }
             }
         }
