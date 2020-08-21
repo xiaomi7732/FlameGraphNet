@@ -42,7 +42,7 @@ namespace FlameGraphNet.Core
             if (_options.AutoHeight)
             {
                 var baselineWidth = _options.Width - GraphMargin * 2;
-                int actualDepth = _depthCounter.GetDepth(root, baselineWidth);
+                int actualDepth = _depthCounter.GetDepth(root, (node) => node.Metric / root.Metric * baselineWidth > 1);
                 _maxDepth = actualDepth;
                 Height = (_maxDepth + 1) * _options.RowHeight + _options.HeaderHeight;
             }
@@ -55,8 +55,6 @@ namespace FlameGraphNet.Core
             AppendTitle(group);
 
             Build(group, root, width: Width - GraphMargin * 2, left: GraphMargin, depth: 0, parent: null);
-
-
 
             MemoryStream outputStream = new MemoryStream();
             svgDoc.Write(outputStream);

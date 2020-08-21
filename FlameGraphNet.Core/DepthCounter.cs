@@ -10,14 +10,15 @@ namespace FlameGraphNet.Core
         public static DepthCounter Instance { get; } = new DepthCounter();
         private DepthCounter() { }
 
-        public int GetDepth(IFlameGraphNode baseline, SvgUnit baselineWidth, Predicate<IFlameGraphNode> filter = null)
+        public int GetDepth(IFlameGraphNode baseline, Predicate<IFlameGraphNode> filter = null)
         {
             if (baseline == null)
             {
                 return 0;
             }
 
-            filter = filter ?? ((node) => node.Metric / baseline.Metric * baselineWidth > 1);
+            // Default filter that always true.
+            filter = filter ?? ((node) => true);
 
             IEnumerable<IFlameGraphNode> workingItems = new List<IFlameGraphNode> { baseline };
             int level = 0;
