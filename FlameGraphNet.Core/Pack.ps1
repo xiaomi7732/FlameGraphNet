@@ -10,7 +10,7 @@ else {
 }
 Write-Host "Use version suffix: $VersionSuffix"
 
-$versionPrefix = "1.0.1"
+$versionPrefix = "1.0.2"
 
 if ($official) {
 
