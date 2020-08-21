@@ -7,6 +7,8 @@ namespace FlameGraphNet.Core
         public int Width { get; set; } = 1920;
         public int Height { get; set; } = 1000;
 
+        public bool AutoHeight { get; set; }
+
         public int HeaderHeight { get; set; } = 50;
 
         public int WorkingSpaceHeight => Height - HeaderHeight;

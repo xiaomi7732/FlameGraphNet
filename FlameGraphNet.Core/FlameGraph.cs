@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -10,20 +11,25 @@ namespace FlameGraphNet.Core
     public class FlameGraph
     {
         private FlameGraphOptions _options;
+        private readonly DepthCounter _depthCounter;
         private const string WhiteSpace = " ";
-        private readonly int _maxDepth;
+        private int _maxDepth;
         private const int TextMargin = 3;
         private const int GraphMargin = 10;
 
         public int Width => _options.Width;
-        public int Height => _options.Height;
+        public int Height { get; set; }
         public int RowHeight => _options.RowHeight;
 
 
-        public FlameGraph(FlameGraphOptions options = null)
+        public FlameGraph(
+            FlameGraphOptions options = null,
+            DepthCounter depthCounter = null)
         {
             _options = options ?? new FlameGraphOptions();
+            _depthCounter = depthCounter ?? DepthCounter.Instance;
             _maxDepth = _options.WorkingSpaceHeight / _options.RowHeight - 1;
+            Height = _options.Height;
         }
 
         public MemoryStream Build(IFlameGraphNode root)
@@ -31,6 +37,13 @@ namespace FlameGraphNet.Core
             if (root == null)
             {
                 return null;
+            }
+
+            if (_options.AutoHeight)
+            {
+                int actualDepth = _depthCounter.GetDepth(root);
+                _maxDepth = actualDepth;
+                Height = (_maxDepth + 1) * _options.RowHeight + _options.HeaderHeight;
             }
 
             SvgDocument svgDoc;
