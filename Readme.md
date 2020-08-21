@@ -85,6 +85,34 @@ private static void DeleteFileWhenExists(string resultFilePath)
 
 ## Advanced Topics
 
+### Manual height vs Auto height by tree depth
+
+By default, there's option to control the generated svg height. For example, the following option is going to make an svg of heights of 1000.
+In this mode, the callstack on the graph might be truncated, only limited levels could fit into the height.
+
+```csharp
+FlameGraph graph = new FlameGraph(new FlameGraphOptions()
+{
+    Title = "Hello Flame Graph",
+    Width = 800,
+    Height = 1000
+});
+```
+
+Sometimes, it will be convenient to just generate an svg that fits shows all stacks - no matter the height. An option of `AutoHeight` is provided:
+
+```csharp
+FlameGraph graph = new FlameGraph(new FlameGraphOptions()
+{
+    Title = "Hello Flame Graph",
+    Width = 800,
+    AutoHeight = true, // Set auto height to true
+    Height = 1000  // This setting will be overwritten and takes no effect.
+});
+```
+
+In this case, the graph height will be calculated automatically to fit the whole stack. The deeper the tree passed in, the taller the height becomes.
+
 ### Using any existing tree node as flame graph node
 
 The key is to provide 3 delegates to extract the following items from a existing object:
