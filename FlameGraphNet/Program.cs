@@ -65,11 +65,11 @@ namespace FlameGraphNet
 
             // Generate an example tree
             const int levels = 20;
-            TreeNode root = new TreeNode("Root", levels * 2);
-            root = AppendChildren(root, levels * 2);
+            TreeNode root = new TreeNode("Root", levels * 4);
+            root = AppendChildren(root, levels * 4);
             TreeNode root2 = new TreeNode("Root2", levels);
             root2 = AppendChildren(root2, levels);
-            TreeNode fullTree = new TreeNode("Full Tree", levels * 2 + levels);
+            TreeNode fullTree = new TreeNode("Full Tree", levels * 4 + levels);
             fullTree.Children.Add(root);
             fullTree.Children.Add(root2);
 
@@ -82,6 +82,7 @@ namespace FlameGraphNet
                 Title = "Hello Flame Graph",
                 Width = 800,
                 Height = 800,
+                AutoHeight = true,
             });
 
             using Stream svgStream = graph.Build(wrappedRoot);

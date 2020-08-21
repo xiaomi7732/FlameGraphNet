@@ -4,7 +4,6 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>FlameGraph.Net</PackageId>
     <Title>Create flame graph with .NET code easily.</Title>
-    <Version>1.0.1</Version>
     <Authors>xiaomi7732</Authors>
     <Company>xiaomi7732</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
