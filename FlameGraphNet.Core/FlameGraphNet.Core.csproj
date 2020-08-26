@@ -8,6 +8,7 @@
     <Company>xiaomi7732</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/xiaomi7732/FlameGraphNet</RepositoryUrl>
+    <PackageDescription>A C# library to generate flamegraph, a visualization for tree view.</PackageDescription>
   </PropertyGroup>
 
   <ItemGroup>

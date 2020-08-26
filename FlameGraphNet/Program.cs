@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using FlameGraphNet.Core;
 
@@ -12,6 +13,38 @@ namespace FlameGraphNet
             SimpleNodeExample();
 
             NodeAdapterExample();
+
+            ColorizerExample();
+        }
+
+        private static void ColorizerExample()
+        {
+            const int nodeCount = 20;
+            SimpleNode root = new SimpleNode()
+            {
+                Content = $"Node {nodeCount.ToString("0")}",
+                Metric = nodeCount,
+            };
+            root = AppendChildren(root, nodeCount);
+
+            FlameGraph newGraph = new FlameGraph(new FlameGraphOptions()
+            {
+                Title = "Hello Flame Graph",
+                Width = 800,
+                Height = 600,
+                FrameBackgroundProvider= node =>
+                {
+                    if (node.Metric > 10)
+                    {
+                        return Color.OrangeRed;
+                    }
+                    return Color.DarkOrange;
+                },
+            });
+
+            string fileName = Path.Combine("Examples", nameof(ColorizerExample) + ".svg");
+            DeleteFileWhenExists(fileName);
+            newGraph.BuildTo(root, fileName);
         }
 
         #region Simple Node Example
