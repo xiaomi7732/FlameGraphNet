@@ -31,7 +31,7 @@ namespace FlameGraphNet.Core
             _depthCounter = depthCounter ?? DepthCounter.Instance;
             _maxDepth = _options.WorkingSpaceHeight / _options.RowHeight - 1;
             Height = _options.Height;
-            _getFrameBackground = options.FrameBackroundProvider ?? GetDefaultFrameBackground;
+            _getFrameBackground = options.FrameBackgroundProvider ?? GetDefaultFrameBackground;
         }
 
         /// <summary>

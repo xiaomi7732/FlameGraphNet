@@ -42,7 +42,7 @@ namespace FlameGraphNet.Core
         /// <summary>
         /// Gets or sets a delegate to determine the frame backend color. The default color used for a frame is DarkOrange when not provided.
         /// </summary>
-        public Func<IFlameGraphNode, Color> FrameBackroundProvider { get; set; }
+        public Func<IFlameGraphNode, Color> FrameBackgroundProvider { get; set; }
         
         /// <summary>
         /// Gets the working space height.

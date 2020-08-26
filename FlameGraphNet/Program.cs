@@ -32,7 +32,7 @@ namespace FlameGraphNet
                 Title = "Hello Flame Graph",
                 Width = 800,
                 Height = 600,
-                FrameBackroundProvider= node =>
+                FrameBackgroundProvider= node =>
                 {
                     if (node.Metric > 10)
                     {
