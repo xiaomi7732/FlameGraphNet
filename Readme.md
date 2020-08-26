@@ -85,10 +85,36 @@ private static void DeleteFileWhenExists(string resultFilePath)
 
 ## Advanced Topics
 
-### Manual height vs Auto height by tree depth
+### Use different background colors for frames
+
+Colorize frames with different colors could help quickly identify interesting targets. `FrameBackgroundProvider` in `FlameGraphOptions` can be used to reach the goal:
+
+```csharp
+FlameGraph newGraph = new FlameGraph(new FlameGraphOptions()
+{
+    Title = "Hello Flame Graph",
+    ... // The following delegate returns 2 colors depends on the value of the metrics.
+    FrameBackgroundProvider = node =>
+    {
+        if (node.Metric > 10)
+        {
+            return Color.OrangeRed;
+        }
+        return Color.DarkOrange;
+    },
+});
+```
+
+The options above will highlight (OrangeRed) any frames that has a value greater than 10 and those frames will easily catch the eyes:
+
+![Flame Graph with various color](./images/flameGraphWithColor.png)
+
+_Tips: combine the node.Content with regular expression to return various colors._
+
+### Manual height vs Auto height
 
 By default, there's option to control the generated svg height. For example, the following option is going to make an svg of heights of 1000.
-In this mode, the callstack on the graph might be truncated, only limited levels could fit into the height.
+In this mode, the frames on the graph might be truncated, only limited levels could fit into the height.
 
 ```csharp
 FlameGraph graph = new FlameGraph(new FlameGraphOptions()
