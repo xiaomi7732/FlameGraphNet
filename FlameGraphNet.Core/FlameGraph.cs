@@ -17,10 +17,11 @@ namespace FlameGraphNet.Core
         private const int TextMargin = 3;
         private const int GraphMargin = 10;
 
+        private readonly Func<IFlameGraphNode, Color> _getFrameBackground;
+
         public int Width => _options.Width;
         public int Height { get; set; }
         public int RowHeight => _options.RowHeight;
-
 
         public FlameGraph(
             FlameGraphOptions options = null,
@@ -30,8 +31,14 @@ namespace FlameGraphNet.Core
             _depthCounter = depthCounter ?? DepthCounter.Instance;
             _maxDepth = _options.WorkingSpaceHeight / _options.RowHeight - 1;
             Height = _options.Height;
+            _getFrameBackground = options.FrameBackroundProvider ?? GetDefaultFrameBackground;
         }
 
+        /// <summary>
+        /// Build a flame graph and return the svg as a stream.
+        /// </summary>
+        /// <param name="root">Root node for a flame graph tree.</param>
+        /// <returns>A memory stream that contains the svg content.</returns>
         public MemoryStream Build(IFlameGraphNode root)
         {
             if (root == null)
@@ -60,6 +67,39 @@ namespace FlameGraphNet.Core
             svgDoc.Write(outputStream);
             outputStream.Position = 0;
             return outputStream;
+        }
+
+        /// <summary>
+        /// Build a flame graph to a svg file.
+        /// </summary>
+        /// <param name="root">Root node for a flame graph tree.</param>
+        /// <param name="path">Target svg file path.</param>
+        /// <returns>True when build succeeded. Otherwise, false.</returns>
+        public bool BuildTo(IFlameGraphNode root, string path)
+        {
+            if (path is null)
+            {
+                throw new System.ArgumentNullException(nameof(path));
+            }
+
+            using (Stream sourceStream = Build(root))
+            {
+                if (sourceStream == null)
+                {
+                    return false;
+                }
+                string dirName = Path.GetDirectoryName(path);
+                if (!string.IsNullOrEmpty(dirName))
+                {
+                    Directory.CreateDirectory(dirName);
+                }
+                using (FileStream outputStream = new FileStream(path, FileMode.CreateNew, FileAccess.Write))
+                {
+                    sourceStream.Position = 0;
+                    sourceStream.CopyTo(outputStream);
+                }
+                return true;
+            }
         }
 
         private SvgDocument BuildSvgDocument()
@@ -93,33 +133,6 @@ namespace FlameGraphNet.Core
                     FontSize = 16,
                     Color = new SvgColourServer(Color.FromArgb(0, 9, 9, 9)),
                 });
-            }
-        }
-
-        public bool BuildTo(IFlameGraphNode root, string path)
-        {
-            if (path is null)
-            {
-                throw new System.ArgumentNullException(nameof(path));
-            }
-
-            using (Stream sourceStream = Build(root))
-            {
-                if (sourceStream == null)
-                {
-                    return false;
-                }
-                string dirName = Path.GetDirectoryName(path);
-                if (!string.IsNullOrEmpty(dirName))
-                {
-                    Directory.CreateDirectory(dirName);
-                }
-                using (FileStream outputStream = new FileStream(path, FileMode.CreateNew, FileAccess.Write))
-                {
-                    sourceStream.Position = 0;
-                    sourceStream.CopyTo(outputStream);
-                }
-                return true;
             }
         }
 
@@ -165,7 +178,7 @@ namespace FlameGraphNet.Core
             // Create the rectangle:
             var rect = new SvgRectangle
             {
-                Fill = new SvgColourServer(Color.DarkOrange),
+                Fill = new SvgColourServer(_getFrameBackground(node)),
                 X = left,
                 Y = top,
                 CornerRadiusX = 1,
@@ -205,6 +218,11 @@ namespace FlameGraphNet.Core
                     childLeft += ratioWidth;
                 }
             }
+        }
+
+        private Color GetDefaultFrameBackground(IFlameGraphNode node)
+        {
+            return Color.DarkOrange;
         }
 
         private string GetFitText(string fullText, SvgUnit width)
