@@ -112,6 +112,7 @@ namespace FlameGraphNet.Core
             }
             svgDoc.Width = Width;
             svgDoc.Height = Height;
+            
             svgDoc.ViewBox = new SvgViewBox(0, 0, Width, Height);
             svgDoc.CustomAttributes.Add("onload", "init(evt)");
             svgDoc.Children.Add(new SvgScript()
