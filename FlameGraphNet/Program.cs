@@ -4,144 +4,143 @@ using System.Drawing;
 using System.IO;
 using FlameGraphNet.Core;
 
-namespace FlameGraphNet
+namespace FlameGraphNet;
+
+class Program
 {
-    class Program
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
+        SimpleNodeExample();
+
+        NodeAdapterExample();
+
+        ColorizerExample();
+    }
+
+    private static void ColorizerExample()
+    {
+        const int nodeCount = 20;
+        SimpleNode root = new()
         {
-            SimpleNodeExample();
+            Content = $"Node {nodeCount:0}",
+            Metric = nodeCount,
+        };
+        root = AppendChildren(root, nodeCount);
 
-            NodeAdapterExample();
-
-            ColorizerExample();
-        }
-
-        private static void ColorizerExample()
+        FlameGraph newGraph = new(new FlameGraphOptions()
         {
-            const int nodeCount = 20;
-            SimpleNode root = new SimpleNode()
+            Title = "Hello Flame Graph",
+            Width = 800,
+            Height = 600,
+            FrameBackgroundProvider = node =>
             {
-                Content = $"Node {nodeCount.ToString("0")}",
-                Metric = nodeCount,
-            };
-            root = AppendChildren(root, nodeCount);
-
-            FlameGraph newGraph = new FlameGraph(new FlameGraphOptions()
-            {
-                Title = "Hello Flame Graph",
-                Width = 800,
-                Height = 600,
-                FrameBackgroundProvider = node =>
+                if (node.Metric > 10)
                 {
-                    if (node.Metric > 10)
-                    {
-                        return Color.OrangeRed;
-                    }
-                    return Color.DarkOrange;
-                },
-                BackgroundColor = Color.LightGray,
-            });
+                    return Color.OrangeRed;
+                }
+                return Color.DarkOrange;
+            },
+            BackgroundColor = Color.LightGray,
+        });
 
-            string fileName = Path.Combine("Examples", nameof(ColorizerExample) + ".svg");
-            DeleteFileWhenExists(fileName);
-            newGraph.BuildTo(root, fileName);
-        }
+        string fileName = Path.Combine("Examples", nameof(ColorizerExample) + ".svg");
+        DeleteFileWhenExists(fileName);
+        newGraph.BuildTo(root, fileName);
+    }
 
-        #region Simple Node Example
-        private static void SimpleNodeExample()
+    #region Simple Node Example
+    private static void SimpleNodeExample()
+    {
+        const int nodeCount = 20;
+        SimpleNode root = new()
         {
-            const int nodeCount = 20;
-            SimpleNode root = new SimpleNode()
+            Content = $"Node {nodeCount:0}",
+            Metric = nodeCount,
+        };
+        root = AppendChildren(root, nodeCount);
+
+        FlameGraph newGraph = new(new FlameGraphOptions()
+        {
+            Title = "Hello Flame Graph",
+            Width = 800,
+            Height = 600,
+        });
+
+        string fileName = Path.Combine("Examples", nameof(SimpleNodeExample) + ".svg");
+        DeleteFileWhenExists(fileName);
+        newGraph.BuildTo(root, fileName);
+    }
+
+    // Generate a simple tree.
+    private static SimpleNode AppendChildren(SimpleNode current, double metricValue)
+    {
+        metricValue--;
+        if (metricValue > 0)
+        {
+            SimpleNode newChild = new()
             {
-                Content = $"Node {nodeCount.ToString("0")}",
-                Metric = nodeCount,
+                Content = $"Node {metricValue:0}",
+                Metric = metricValue,
             };
-            root = AppendChildren(root, nodeCount);
 
-            FlameGraph newGraph = new FlameGraph(new FlameGraphOptions()
-            {
-                Title = "Hello Flame Graph",
-                Width = 800,
-                Height = 600,
-            });
-
-            string fileName = Path.Combine("Examples", nameof(SimpleNodeExample) + ".svg");
-            DeleteFileWhenExists(fileName);
-            newGraph.BuildTo(root, fileName);
+            current.Children.Add(AppendChildren(newChild, metricValue));
         }
+        return current;
+    }
+    #endregion
 
-        // Generate a simple tree.
-        private static SimpleNode AppendChildren(SimpleNode current, double metricValue)
+    #region Node adapter example
+    private static void NodeAdapterExample()
+    {
+        // Create delegates for adaption
+        Func<TreeNode, string> getContent = n => n.Text;
+        Func<TreeNode, double> getMetric = n => n.Value;
+        Func<TreeNode, IEnumerable<TreeNode>> getChildren = n => n.Children;
+
+        // Generate an example tree
+        const int levels = 20;
+        TreeNode root = new("Root", levels * 4);
+        root = AppendChildren(root, levels * 4);
+        TreeNode root2 = new("Root2", levels);
+        root2 = AppendChildren(root2, levels);
+        TreeNode fullTree = new("Full Tree", levels * 4 + levels);
+        fullTree.Children.Add(root);
+        fullTree.Children.Add(root2);
+
+        // Adapter the tree
+        var wrappedRoot = new FlameGraphNode<TreeNode>(fullTree, getContent, getMetric, getChildren);
+
+        // Output the svg stream to file.
+        FlameGraph graph = new(new FlameGraphOptions()
         {
-            metricValue--;
-            if (metricValue > 0)
-            {
-                SimpleNode newChild = new SimpleNode()
-                {
-                    Content = $"Node {metricValue.ToString("0")}",
-                    Metric = metricValue,
-                };
+            Title = "Hello Flame Graph",
+            Width = 800,
+            Height = 800,
+            AutoHeight = true,
+        });
 
-                current.Children.Add(AppendChildren(newChild, metricValue));
-            }
-            return current;
+        using Stream svgStream = graph.Build(wrappedRoot);
+        using FileStream fileStream = new(Path.Combine("Examples", $"{nameof(NodeAdapterExample)}.svg"), FileMode.Create, FileAccess.Write);
+        svgStream.CopyTo(fileStream);
+    }
+
+    private static TreeNode AppendChildren(TreeNode current, double metricValue)
+    {
+        metricValue--;
+        if (metricValue > 0)
+        {
+            TreeNode newChild = new($"Node {metricValue.ToString("0")}", metricValue);
+            current.Children.Add(AppendChildren(newChild, metricValue));
         }
-        #endregion
+        return current;
+    }
+    #endregion
 
-        #region Node adapter example
-        private static void NodeAdapterExample()
+    private static void DeleteFileWhenExists(string resultFilePath)
+    {
+        if (File.Exists(resultFilePath))
         {
-            // Create delegates for adaption
-            Func<TreeNode, string> getContent = n => n.Text;
-            Func<TreeNode, double> getMetric = n => n.Value;
-            Func<TreeNode, IEnumerable<TreeNode>> getChildren = n => n.Children;
-
-            // Generate an example tree
-            const int levels = 20;
-            TreeNode root = new TreeNode("Root", levels * 4);
-            root = AppendChildren(root, levels * 4);
-            TreeNode root2 = new TreeNode("Root2", levels);
-            root2 = AppendChildren(root2, levels);
-            TreeNode fullTree = new TreeNode("Full Tree", levels * 4 + levels);
-            fullTree.Children.Add(root);
-            fullTree.Children.Add(root2);
-
-            // Adapter the tree
-            var wrappedRoot = new FlameGraphNode<TreeNode>(fullTree, getContent, getMetric, getChildren);
-
-            // Output the svg stream to file.
-            FlameGraph graph = new FlameGraph(new FlameGraphOptions()
-            {
-                Title = "Hello Flame Graph",
-                Width = 800,
-                Height = 800,
-                AutoHeight = true,
-            });
-
-            using Stream svgStream = graph.Build(wrappedRoot);
-            using FileStream fileStream = new FileStream(Path.Combine("Examples", $"{nameof(NodeAdapterExample)}.svg"), FileMode.Create, FileAccess.Write);
-            svgStream.CopyTo(fileStream);
-        }
-
-        private static TreeNode AppendChildren(TreeNode current, double metricValue)
-        {
-            metricValue--;
-            if (metricValue > 0)
-            {
-                TreeNode newChild = new TreeNode($"Node {metricValue.ToString("0")}", metricValue);
-                current.Children.Add(AppendChildren(newChild, metricValue));
-            }
-            return current;
-        }
-        #endregion
-
-        private static void DeleteFileWhenExists(string resultFilePath)
-        {
-            if (File.Exists(resultFilePath))
-            {
-                File.Delete(resultFilePath);
-            }
+            File.Delete(resultFilePath);
         }
     }
 }
