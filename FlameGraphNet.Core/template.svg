@@ -5,7 +5,6 @@
     <style type="text/css">
     text { font-family: 'Segoe UI'}
     .unit_g:hover { stroke:black; stroke-width:0.5; cursor:pointer; }
-
     </style>
 
     <g id="content">

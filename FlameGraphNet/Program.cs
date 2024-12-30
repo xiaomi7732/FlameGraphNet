@@ -32,7 +32,7 @@ namespace FlameGraphNet
                 Title = "Hello Flame Graph",
                 Width = 800,
                 Height = 600,
-                FrameBackgroundProvider= node =>
+                FrameBackgroundProvider = node =>
                 {
                     if (node.Metric > 10)
                     {
@@ -40,6 +40,7 @@ namespace FlameGraphNet
                     }
                     return Color.DarkOrange;
                 },
+                BackgroundColor = Color.LightGray,
             });
 
             string fileName = Path.Combine("Examples", nameof(ColorizerExample) + ".svg");
