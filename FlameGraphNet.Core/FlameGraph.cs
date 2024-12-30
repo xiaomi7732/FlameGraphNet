@@ -57,6 +57,17 @@ namespace FlameGraphNet.Core
             SvgDocument svgDoc;
             svgDoc = BuildSvgDocument();
 
+            // Append a background for the svg document when specified.
+            if (_options.BackgroundColor != Color.Empty)
+            {
+                svgDoc.Children.Insert(0, new SvgRectangle()
+                {
+                    Fill = new SvgColourServer(_options.BackgroundColor),
+                    Width = new SvgUnit(SvgUnitType.Percentage, 100),
+                    Height = new SvgUnit(SvgUnitType.Percentage, 100),
+                });
+            };
+
             var group = svgDoc.Children.OfType<SvgGroup>().FirstOrDefault();
 
             AppendTitle(group);
@@ -112,6 +123,7 @@ namespace FlameGraphNet.Core
             }
             svgDoc.Width = Width;
             svgDoc.Height = Height;
+
             svgDoc.ViewBox = new SvgViewBox(0, 0, Width, Height);
             svgDoc.CustomAttributes.Add("onload", "init(evt)");
             svgDoc.Children.Add(new SvgScript()
